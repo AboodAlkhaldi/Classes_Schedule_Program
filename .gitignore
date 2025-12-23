@@ -6,6 +6,8 @@ __pycache__/
 
 # IDE
 .idea/
+.vscode/
+.python-version
 
 # OS
 .DS_Store
