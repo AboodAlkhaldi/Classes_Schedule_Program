@@ -4,10 +4,10 @@ from typing import List
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:1212@localhost:5432/uniproj_db"
     
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = "dev_jwt_secret_8f3a2b7c91e4d5f0c6a9b2e7f1d4c8a6"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
