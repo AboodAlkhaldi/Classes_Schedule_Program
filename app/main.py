@@ -1,20 +1,54 @@
-from fastapi import FastAPI , HTTPException , Depends
-from app.db import BlaBla, create_db_and_tables , get_async_session
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from config import settings
+from app.core.logging import setup_logging
+from app.api.v1.router import api_router
+
+
+# Setup logging
+logger = setup_logging()
+
 
 @asynccontextmanager
-async def lifespan(app:FastAPI):
-    await create_db_and_tables()
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting application...")
+    # Initialize database tables (in production, use Alembic migrations instead)
+    # await init_db()
     yield
+    # Shutdown
+    logger.info("Shutting down application...")
 
-app = FastAPI(lifespan=lifespan)
 
-@app.get("/hello")
-def hello():
-    if not True:
-        raise HTTPException(status_code=404 , detail="Not found")   
-    
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    lifespan=lifespan
+)
 
-    return {"message" : "Hello lan"} 
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+# Include API router
+app.include_router(api_router, prefix="/api/v1")
+
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Class Scheduling Management System API",
+        "version": settings.APP_VERSION,
+        "docs": "/docs"
+    }
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
